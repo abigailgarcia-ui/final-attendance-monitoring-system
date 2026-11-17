@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Attendance Monitoring System</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="style.css">
+<style id="themeStyle"></style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+<div class="flex min-h-screen">
+<aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-30 w-64 bg-slate-900 text-slate-200 p-5 transform -translate-x-full lg:translate-x-0 transition-transform">
+<div class="flex items-center gap-3 mb-8">
+<div class="w-10 h-10 rounded-xl bg-teal-500 text-white flex items-center justify-center"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3 8-8M20 12v7a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9"/></svg></div>
+<div><p class="font-semibold text-white leading-tight">Attendance</p><p class="text-xs text-slate-400">Monitoring System</p></div>
+</div>
+<nav class="space-y-1" id="nav">
+<button data-view="dashboard" class="nav-btn"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13h8V3H3zM13 21h8V11h-8zM13 3v6h8V3zM3 21h8v-6H3z"/></svg>Dashboard</button>
+<button data-view="attendance" class="nav-btn"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Mark Attendance</button>
+<button data-view="sections" class="nav-btn"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Sections &amp; Schedule</button>
+<button data-view="students" class="nav-btn"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2M10 11a4 4 0 100-8 4 4 0 000 8zM21 21v-2a4 4 0 00-3-3.9M16 3.1a4 4 0 010 7.8"/></svg>Students</button>
+<button data-view="summary" class="nav-btn"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Summaries</button>
+<button data-view="history" class="nav-btn"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Student History</button>
+</nav>
+</aside>
+<div id="overlay" class="fixed inset-0 bg-black/40 z-20 hidden lg:hidden"></div>
+<main class="flex-1 min-w-0">
+<header class="bg-white border-b border-slate-200 px-4 sm:px-8 py-4 flex items-center justify-between gap-4 sticky top-0 z-10">
+<div class="flex items-center gap-3">
+<button id="menuBtn" class="lg:hidden p-2 rounded-lg hover:bg-slate-100" aria-label="Menu"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+<h1 id="viewTitle" class="text-xl font-semibold">Dashboard</h1>
+</div>
+<div class="flex items-center gap-4">
+<div class="text-right"><p id="clockDate" class="text-sm font-medium"></p></div>
+<div class="relative">
+<button id="acctBtn" type="button" class="w-10 h-10 rounded-full bg-teal-600 text-white font-semibold flex items-center justify-center" aria-label="Account"></button>
+<div id="acctMenu" class="hidden absolute right-0 top-full mt-2 w-72 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 text-sm">
+<div class="p-3 flex items-center gap-3">
+<div id="acctAvatar" class="w-11 h-11 rounded-full bg-teal-600 text-white font-semibold flex items-center justify-center"></div>
+<div class="min-w-0"><p id="acctName" class="font-semibold truncate"></p><p id="acctUser" class="text-xs text-slate-500 truncate"></p></div>
+</div>
+<div class="flex gap-2 px-3 pb-2"><button type="button" id="acctChoose" class="btn-sec flex-1">Choose profile</button><button type="button" id="acctRemove" class="btn-danger">Remove</button></div>
+<p class="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Account Settings</p>
+<button type="button" id="acctActivity" class="acct-item"><b>Login Activity</b><span>Recent account access history</span></button>
+<button type="button" id="acctEdit" class="acct-item"><b>Edit Profile</b></button>
+<button type="button" id="acctTheme" class="acct-item"><b>Theme</b><span>Choose your background theme</span></button>
+<button type="button" id="acctPass" class="acct-item"><b>Change Password</b></button>
+<button type="button" id="acctAdd" class="acct-item"><b>Add Account</b><span>Sign in to or create another account</span></button>
+<button type="button" id="acctLogout" class="acct-item"><b class="text-red-600">Logout</b><span>Sign out of your account</span></button>
+</div>
+</div>
+</div>
+</header>
+<div class="p-4 sm:p-8">
+
+<section id="view-dashboard" class="view space-y-6">
+<div id="kpis" class="grid grid-cols-2 xl:grid-cols-4 gap-4"></div>
+<div class="grid lg:grid-cols-3 gap-6">
+<div class="card lg:col-span-2"><h2 class="card-h"><svg class="w-5 h-5 text-teal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Overall attendance by section</h2><canvas id="barChart" width="700" height="280" class="w-full"></canvas></div>
+<div class="card"><h2 class="card-h"><svg class="w-5 h-5 text-teal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12A9 9 0 1112 3v9z"/></svg>Status distribution</h2><canvas id="pieChart" width="300" height="220" class="w-full"></canvas><div id="pieLegend" class="grid grid-cols-2 gap-2 text-sm mt-3"></div></div>
+</div>
+<div class="card"><h2 class="card-h"><svg class="w-5 h-5 text-teal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2M10 11a4 4 0 100-8 4 4 0 000 8z"/></svg>Student attendance overview</h2>
+<div class="flex flex-col sm:flex-row gap-3 mb-4">
+<input id="dashSearch" placeholder="Search name..." class="inp flex-1">
+<select id="dashSection" class="inp"></select>
+<select id="dashSort" class="inp"><option value="name">Sort: Name</option><option value="pct">Sort: Attendance %</option><option value="section">Sort: Section</option></select>
+</div>
+<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="th-row"><th>Student</th><th>Section</th><th>Latest date</th><th>Time</th><th>Status</th><th>Attendance %</th></tr></thead><tbody id="dashBody"></tbody></table></div></div>
+<div class="card"><h2 class="card-h"><svg class="w-5 h-5 text-teal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Recent activity</h2><ul id="recent" class="divide-y divide-slate-100"></ul></div>
+</section>
+
+<section id="view-attendance" class="view hidden space-y-6">
+<div class="card">
+<div class="grid sm:grid-cols-3 gap-3 mb-4">
+<label class="text-sm">Section<select id="attSection" class="inp w-full mt-1"></select></label>
+<label class="text-sm">Date<input type="date" id="attDate" class="inp w-full mt-1"></label>
+<div class="flex items-end gap-2"><button id="markAllPresent" class="btn-sec flex-1">Mark all Present</button><button id="attDone" type="button" class="btn flex-1 justify-center">Done / Save</button></div>
+</div>
+<p id="attSched" class="text-sm text-slate-500 mb-4"></p>
+<p class="text-xs text-slate-500 mb-3">Time-in is recorded automatically at the moment you mark a status. Existing date and time are kept if you re-mark on the same day. You can still edit marks, then press Done / Save.</p>
+<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="th-row"><th>Student</th><th>Time-in</th><th>Status</th><th>Mark</th></tr></thead><tbody id="attBody"></tbody></table></div>
+</div>
+</section>
+
+<section id="view-sections" class="view hidden space-y-6">
+<div class="flex justify-between items-center"><h2 class="text-lg font-semibold">Class sections</h2><button id="addSectionBtn" class="btn"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>New section</button></div>
+<div id="sectionGrid" class="grid md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+</section>
+
+<section id="view-students" class="view hidden space-y-6">
+<div class="card">
+<div class="flex flex-col sm:flex-row gap-3 mb-4">
+<input id="stuSearch" placeholder="Search students..." class="inp flex-1">
+<select id="stuSection" class="inp"></select>
+<button id="addStudentBtn" class="btn justify-center"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>Add student</button>
+</div>
+<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="th-row"><th>Name</th><th>Section</th><th>Attendance %</th><th class="text-right">Actions</th></tr></thead><tbody id="stuBody"></tbody></table></div>
+</div>
+</section>
+
+<section id="view-summary" class="view hidden space-y-6">
+<div class="card">
+<div class="flex flex-col sm:flex-row gap-3 mb-4 sm:items-end">
+<h2 class="card-h !mb-0 flex-1">Daily section attendance summary</h2>
+<input type="date" id="sumDate" class="inp">
+<button id="exportDaily" class="btn-sec">Export CSV</button>
+</div>
+<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="th-row"><th>Date</th><th>Section</th><th>Present</th><th>Late</th><th>Absent</th><th>Excused</th><th>Unmarked</th><th>Rate</th></tr></thead><tbody id="dailyBody"></tbody></table></div>
+</div>
+<div class="card">
+<div class="flex items-center justify-between mb-4"><h2 class="card-h !mb-0">Overall section attendance summary</h2><button id="exportOverall" class="btn-sec">Export CSV</button></div>
+<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="th-row"><th>Section</th><th>Students</th><th>Records</th><th>Present</th><th>Late</th><th>Absent</th><th>Excused</th><th>Overall %</th></tr></thead><tbody id="overallBody"></tbody></table></div>
+</div>
+</section>
+
+<section id="view-history" class="view hidden space-y-6">
+<div class="card">
+<div class="flex flex-col sm:flex-row gap-3 mb-4">
+<select id="histStudent" class="inp flex-1"></select>
+<select id="histStatus" class="inp"><option value="">All statuses</option><option>Present</option><option>Late</option><option>Absent</option><option>Excused</option></select>
+<button id="exportHist" class="btn-sec">Export CSV</button>
+</div>
+<div id="histInfo" class="mb-4"></div>
+<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="th-row"><th>Date</th><th>Day</th><th>Time-in</th><th>Status</th><th class="text-right">Action</th></tr></thead><tbody id="histBody"></tbody></table></div>
+</div>
+</section>
+</div>
+</main>
+</div>
+
+<div id="modal" class="fixed inset-0 z-40 hidden items-center justify-center bg-slate-900/50 p-4">
+<form id="modalForm" class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-4" novalidate>
+<h3 id="modalTitle" class="text-lg font-semibold"></h3>
+<div id="modalFields" class="space-y-3"></div>
+<p id="modalErr" class="text-sm text-red-600 hidden"></p>
+<div class="flex justify-end gap-2"><button type="button" id="modalCancel" class="btn-sec">Cancel</button><button type="submit" class="btn">Save</button></div>
+</form>
+</div>
+
+<div id="loginScreen" class="fixed inset-0 z-[60] hidden items-center justify-center bg-slate-900 p-4">
+<form id="loginForm" class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4" novalidate>
+<div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-teal-500 text-white flex items-center justify-center"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3 8-8M20 12v7a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9"/></svg></div><div><p class="font-semibold leading-tight">Attendance Monitoring</p><p id="loginSub" class="text-xs text-slate-500">Sign in to continue</p></div></div>
+<label id="loginNameWrap" class="block text-sm font-medium hidden">Full name<input id="loginName" class="inp w-full mt-1"></label>
+<label class="block text-sm font-medium">Username<input id="loginUser" class="inp w-full mt-1" autocomplete="username"></label>
+<label class="block text-sm font-medium"><span id="loginPassLbl">Password</span><input id="loginPass" type="password" class="inp w-full mt-1" autocomplete="current-password"></label>
+<p id="loginErr" class="text-sm text-red-600 hidden"></p>
+<button type="submit" id="loginSubmit" class="btn w-full justify-center">Sign in</button>
+<button type="button" id="loginForgot" class="w-full text-sm text-slate-600 hover:underline">Forgot password?</button>
+<button type="button" id="loginToggle" class="w-full text-sm text-teal-700 hover:underline">Create an account</button>
+</form>
+</div>
+
+<div id="acctDlg" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 p-4">
+<form id="acctDlgForm" class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-4 max-h-[90vh] overflow-y-auto" novalidate>
+<h3 id="acctDlgTitle" class="text-lg font-semibold"></h3>
+<div id="acctDlgBody" class="space-y-3"></div>
+<p id="acctDlgErr" class="text-sm text-red-600 hidden"></p>
+<div class="flex justify-end gap-2"><button type="button" id="acctDlgCancel" class="btn-sec">Close</button><button type="submit" id="acctDlgOk" class="btn">Save</button></div>
+</form>
+</div>
+<div id="toasts" class="fixed bottom-4 right-4 z-[70] space-y-2"></div>
+<style>
+#modalForm{max-height:90vh;display:flex;flex-direction:column}
+#modalFields{flex:1 1 auto;min-height:0;overflow-y:auto;padding:2px}
+#modalForm>*{flex-shrink:0}
+#modalForm>#modalFields{flex-shrink:1}
+.acct-item{display:flex;flex-direction:column;align-items:flex-start;width:100%;text-align:left;padding:.55rem .75rem;border-radius:.6rem;transition:background .2s}
+.acct-item:hover{background:#f1f5f9}
+.acct-item b{font-weight:600}
+.acct-item span{font-size:.75rem;color:#64748b}
+.xl-grid{border-collapse:collapse;width:100%;font-size:.875rem}
+.xl-grid th{background:#f1f5f9;border:1px solid #cbd5e1;padding:.3rem .5rem;font-size:.72rem;text-transform:uppercase;color:#64748b}
+.xl-grid td{border:1px solid #cbd5e1;padding:0;white-space:normal}
+.xl-grid td.xl-n{background:#f1f5f9;text-align:center;width:2rem;color:#64748b;font-size:.75rem}
+.xl-grid input{width:100%;padding:.4rem .5rem;border:0;background:#fff;outline:none;font-size:.875rem}
+.xl-grid input:focus{outline:2px solid #14b8a6;outline-offset:-2px}
+</style>
+<script>
+(function () {
+  try {
+    if (!localStorage.getItem('attendance_monitoring_system')) {
+      localStorage.setItem('attendance_monitoring_system', JSON.stringify({ sections: [], students: [], records: [] }));
+    }
+  } catch (e) {}
+})();
+</script>
+<script src="script.js"></script>
+<script>
+(function () {
+  const cfg = { dashBody: [2, 7], attBody: [1, 5], stuBody: [2, 5] };
+  function strip() {
+    Object.keys(cfg).forEach(id => {
+      const body = document.getElementById(id);
+      if (!body) return;
+      [...body.rows].forEach(tr => {
+        if (tr.dataset.nl || tr.cells.length < cfg[id][1]) return;
+        tr.deleteCell(cfg[id][0]);
+        tr.dataset.nl = '1';
+      });
+    });
+  }
+  window.stripLrn = strip;
+  const obs = new MutationObserver(run);
+  function watch() {
+    Object.keys(cfg).forEach(id => {
+      const body = document.getElementById(id);
+      if (body) obs.observe(body, { childList: true });
+    });
+  }
+  function run() {
+    obs.disconnect();
+    try { strip(); } catch (err) {}
+    watch();
+  }
+  run();
+})();
+</script>
+<script>
+(function () {
+  const g = id => document.getElementById(id);
+  const KA = 'ams_accounts', KC = 'ams_current', KL = 'ams_reset_lock';
+  const THEMES = {
+    default: ['#0d9488', '#0f766e', '#14b8a6', '#f1f5f9', 'Default', '#0f172a', '#1e293b'],
+    teal: ['#0d9488', '#0f766e', '#14b8a6', '#ccfbf1', 'Teal', '#134e4a', '#115e59'],
+    indigo: ['#4f46e5', '#4338ca', '#6366f1', '#e0e7ff', 'Indigo', '#312e81', '#3730a3'],
+    rose: ['#e11d48', '#be123c', '#f43f5e', '#ffe4e6', 'Rose', '#881337', '#9f1239'],
+    amber: ['#d97706', '#b45309', '#f59e0b', '#fef3c7', 'Amber', '#78350f', '#92400e'],
+    sky: ['#0284c7', '#0369a1', '#0ea5e9', '#e0f2fe', 'Sky', '#0c4a6e', '#075985'],
+    emerald: ['#059669', '#047857', '#10b981', '#d1fae5', 'Emerald', '#064e3b', '#065f46'],
+    violet: ['#7c3aed', '#6d28d9', '#8b5cf6', '#ede9fe', 'Violet', '#4c1d95', '#5b21b6'],
+    stone: ['#57534e', '#44403c', '#78716c', '#e7e5e4', 'Stone', '#292524', '#44403c'],
+    yellow: ['#ca8a04', '#a16207', '#eab308', '#fef9c3', 'Yellow', '#713f12', '#854d0e'],
+    red: ['#dc2626', '#b91c1c', '#ef4444', '#fee2e2', 'Red', '#7f1d1d', '#991b1b'],
+    orange: ['#ea580c', '#c2410c', '#f97316', '#ffedd5', 'Orange', '#7c2d12', '#9a3412'],
+    pink: ['#db2777', '#be185d', '#ec4899', '#fce7f3', 'Pink', '#831843', '#9d174d'],
+    fuchsia: ['#c026d3', '#a21caf', '#d946ef', '#fae8ff', 'Fuchsia', '#701a75', '#86198f'],
+    lime: ['#65a30d', '#4d7c0f', '#84cc16', '#ecfccb', 'Lime', '#365314', '#3f6212'],
+    cyan: ['#0891b2', '#0e7490', '#06b6d4', '#cffafe', 'Cyan', '#164e63', '#155e75'],
+    blue: ['#2563eb', '#1d4ed8', '#3b82f6', '#dbeafe', 'Blue', '#1e3a8a', '#1e40af'],
+    slate: ['#475569', '#334155', '#64748b', '#e2e8f0', 'Slate', '#0f172a', '#1e293b']
+  };
+  const AV_COLORS = ['#0d9488', '#4f46e5', '#e11d48', '#d97706', '#0ea5e9', '#7c3aed', '#16a34a', '#475569'];
+  const AV_CHARS = [
+    { hair: '#1e1b4b', eye: '#3b82f6', skin: '#fde2cf', cloth: '#334155', style: 'spiky' },
+    { hair: '#7c2d12', eye: '#16a34a', skin: '#fde2cf', cloth: '#be185d', style: 'long' },
+    { hair: '#f472b6', eye: '#a855f7', skin: '#ffe8d9', cloth: '#6366f1', style: 'twin' },
+    { hair: '#facc15', eye: '#0ea5e9', skin: '#fde2cf', cloth: '#dc2626', style: 'spiky' },
+    { hair: '#0f172a', eye: '#ef4444', skin: '#f5d0b5', cloth: '#0f766e', style: 'short' },
+    { hair: '#38bdf8', eye: '#1d4ed8', skin: '#ffe8d9', cloth: '#f59e0b', style: 'long' },
+    { hair: '#e5e7eb', eye: '#f59e0b', skin: '#fde2cf', cloth: '#1e293b', style: 'short' },
+    { hair: '#16a34a', eye: '#facc15', skin: '#f5d0b5', cloth: '#7c3aed', style: 'twin' }
+  ];
+  const esc2 = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  let accounts = JSON.parse(localStorage.getItem(KA) || 'null') || [];
+  let current = localStorage.getItem(KC);
+  let signupMode = false, addingMode = false, resetMode = false;
+  const saveAcc = () => localStorage.setItem(KA, JSON.stringify(accounts));
+  const cur = () => accounts.find(a => a.user === current);
+  const initials = n => n.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+  const themeOf = a => THEMES[a && a.theme] ? a.theme : 'default';
+  saveAcc();
+
+  function animeUri(i, bg) {
+    const c = AV_CHARS[i], h = c.hair;
+    let back = '';
+    if (c.style === 'long') back = `<path d="M17 58 Q12 18 50 13 Q88 18 83 58 L88 100 L12 100Z" fill="${h}"/>`;
+    if (c.style === 'twin') back = `<ellipse cx="14" cy="64" rx="10" ry="28" fill="${h}"/><ellipse cx="86" cy="64" rx="10" ry="28" fill="${h}"/>`;
+    if (c.style === 'spiky') back = `<path d="M20 48 L16 20 L33 31 L42 7 L52 28 L63 5 L68 30 L85 15 L80 48Z" fill="${h}"/>`;
+    const eyes = [37, 63].map(x => `<ellipse cx="${x}" cy="53" rx="7.5" ry="9.5" fill="#fff"/><ellipse cx="${x}" cy="54" rx="5.5" ry="8" fill="${c.eye}"/><ellipse cx="${x}" cy="55" rx="2.6" ry="4.4" fill="#0f172a"/><circle cx="${x - 2}" cy="50" r="2.4" fill="#fff"/><circle cx="${x + 2}" cy="58" r="1.1" fill="#fff"/><path d="M${x - 8} 45 Q${x} 41 ${x + 8} 45" stroke="#0f172a" stroke-width="1.8" fill="none" stroke-linecap="round"/>`).join('');
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="${bg}"/>${back}<path d="M18 102 Q20 80 50 78 Q80 80 82 102Z" fill="${c.cloth}"/><rect x="43" y="68" width="14" height="13" fill="${c.skin}"/><ellipse cx="50" cy="50" rx="26" ry="29" fill="${c.skin}"/>${eyes}<ellipse cx="29" cy="65" rx="5" ry="3" fill="#fb7185" opacity=".35"/><ellipse cx="71" cy="65" rx="5" ry="3" fill="#fb7185" opacity=".35"/><path d="M44 71 Q50 76 56 71" stroke="#9f1239" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M23 50 Q20 15 50 14 Q80 15 77 50 Q70 31 60 37 Q50 24 40 37 Q30 31 23 50Z" fill="${h}"/></svg>`;
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  }
+
+  function drawAv(el, o, name) {
+    const hasAnime = o.anime !== undefined && o.anime !== '' && o.anime !== null && AV_CHARS[o.anime];
+    if (o.photo) { el.textContent = ''; el.style.background = 'url(' + o.photo + ') center/cover no-repeat'; }
+    else if (hasAnime) { el.textContent = ''; el.style.background = 'url("' + animeUri(o.anime, o.color || '#99f6e4') + '") center/cover no-repeat'; }
+    else { el.style.background = o.color || ''; el.textContent = initials(name); }
+  }
+
+  function applyTheme() {
+    const a = cur(), t = THEMES[themeOf(a)];
+    g('themeStyle').textContent = `body{background:${t[3]} !important}#sidebar{background:${t[5]} !important}#sidebar .nav-btn:hover{background:${t[6]}}.btn{background:${t[0]}}.btn:hover{background:${t[1]}}.nav-btn.active{background:${t[2]}}.mk.on{background:${t[0]};border-color:${t[0]}}#acctBtn,#acctAvatar{background:${t[0]}}`;
+  }
+  function paint() {
+    const a = cur(); if (!a) return;
+    applyTheme();
+    drawAv(g('acctBtn'), a, a.name);
+    drawAv(g('acctAvatar'), a, a.name);
+    g('acctName').textContent = a.name;
+    g('acctUser').textContent = '@' + a.user;
+  }
+  function note(msg, ok) { if (typeof toast === 'function') toast(msg, ok === false ? 'err' : 'ok'); }
+
+  function showLogin(add) {
+    addingMode = !!add;
+    g('loginScreen').classList.remove('hidden'); g('loginScreen').classList.add('flex');
+    g('acctMenu').classList.add('hidden');
+    setMode(!accounts.length);
+    g('loginUser').value = ''; g('loginPass').value = ''; g('loginName').value = ''; g('loginErr').classList.add('hidden');
+  }
+  function hideLogin() { g('loginScreen').classList.add('hidden'); g('loginScreen').classList.remove('flex'); }
+  function setMode(s) {
+    signupMode = s; resetMode = false;
+    const none = !accounts.length;
+    g('loginNameWrap').classList.toggle('hidden', !s);
+    g('loginPassLbl').textContent = 'Password';
+    g('loginSubmit').textContent = s ? 'Create account' : 'Sign in';
+    g('loginToggle').textContent = s ? 'I already have an account' : 'Create an account';
+    g('loginToggle').classList.toggle('hidden', none);
+    g('loginForgot').classList.toggle('hidden', s || none);
+    g('loginSub').textContent = none ? 'No account yet. Create one to get started' : (s ? 'Create a new account' : (addingMode ? 'Add another account' : 'Sign in to continue'));
+  }
+  function setReset() {
+    resetMode = true; signupMode = false;
+    g('loginNameWrap').classList.remove('hidden');
+    g('loginPassLbl').textContent = 'New password';
+    g('loginSubmit').textContent = 'Reset password';
+    g('loginToggle').textContent = 'Back to sign in';
+    g('loginToggle').classList.remove('hidden');
+    g('loginForgot').classList.add('hidden');
+    g('loginSub').textContent = 'Enter your username and full name to set a new password';
+    g('loginErr').classList.add('hidden');
+  }
+  function signIn(a) {
+    current = a.user; localStorage.setItem(KC, current);
+    a.log = a.log || [];
+    a.log.unshift(new Date().toLocaleString());
+    a.log = a.log.slice(0, 20);
+    saveAcc(); paint(); hideLogin();
+  }
+  function loginErr(m) { g('loginErr').textContent = m; g('loginErr').classList.remove('hidden'); }
+
+  g('loginForgot').onclick = setReset;
+  g('loginToggle').onclick = () => { if (resetMode) setMode(false); else setMode(!signupMode); };
+  g('loginForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const u = g('loginUser').value.trim().toLowerCase(), p = g('loginPass').value, n = g('loginName').value.trim();
+    if (resetMode) {
+      let lk = {};
+      try { lk = JSON.parse(localStorage.getItem(KL) || '{}'); } catch (x) {}
+      if (lk.until && Date.now() < lk.until) return loginErr('Too many attempts. Try again in ' + Math.ceil((lk.until - Date.now()) / 1000) + ' seconds.');
+      if (!u || !n || !p) return loginErr('Username, full name and new password are required.');
+      if (p.length < 6) return loginErr('New password must be at least 6 characters.');
+      const a = accounts.find(x => x.user === u && x.name.trim().toLowerCase() === n.toLowerCase());
+      if (!a) {
+        const c = (lk.until && Date.now() >= lk.until ? 0 : (lk.n || 0)) + 1;
+        if (c >= 3) { localStorage.setItem(KL, JSON.stringify({ n: 0, until: Date.now() + 60000 })); return loginErr('Too many attempts. Locked for 1 minute.'); }
+        localStorage.setItem(KL, JSON.stringify({ n: c }));
+        return loginErr('Username and full name do not match any account.');
+      }
+      localStorage.removeItem(KL);
+      a.pass = p; saveAcc();
+      setMode(false);
+      g('loginPass').value = ''; g('loginName').value = '';
+      note('Password changed. You can sign in now.');
+      return;
+    }
+    if (!u || !p) return loginErr('Username and password are required.');
+    if (signupMode) {
+      if (!n) return loginErr('Full name is required.');
+      if (p.length < 6) return loginErr('Password must be at least 6 characters.');
+      if (accounts.some(a => a.user === u)) return loginErr('That username is already taken.');
+      const a = { name: n, user: u, pass: p, theme: 'default', log: [] };
+      accounts.push(a); signIn(a); note('Account created');
+    } else {
+      const a = accounts.find(a => a.user === u && a.pass === p);
+      if (!a) return loginErr('Incorrect username or password.');
+      signIn(a); note('Welcome, ' + a.name);
+    }
+  });
+
+  let dlgSubmit = null;
+  function dlg(title, body, onOk, okLabel) {
+    g('acctDlgTitle').textContent = title;
+    g('acctDlgBody').innerHTML = body;
+    g('acctDlgErr').classList.add('hidden');
+    g('acctDlgOk').classList.toggle('hidden', !onOk);
+    g('acctDlgOk').textContent = okLabel || 'Save';
+    g('acctDlgCancel').textContent = onOk ? 'Cancel' : 'Close';
+    dlgSubmit = onOk;
+    g('acctDlg').classList.remove('hidden'); g('acctDlg').classList.add('flex');
+    g('acctMenu').classList.add('hidden');
+  }
+  function closeDlg() { g('acctDlg').classList.add('hidden'); g('acctDlg').classList.remove('flex'); }
+  function dlgErr(m) { g('acctDlgErr').textContent = m; g('acctDlgErr').classList.remove('hidden'); }
+  g('acctDlgCancel').onclick = closeDlg;
+  g('acctDlg').addEventListener('click', e => { if (e.target === g('acctDlg')) closeDlg(); });
+  g('acctDlgForm').addEventListener('submit', e => {
+    e.preventDefault();
+    if (!dlgSubmit) return;
+    const r = dlgSubmit(g('acctDlgForm'));
+    if (r) return dlgErr(r);
+    closeDlg();
+  });
+  const field = (label, name, type, val) => `<label class="block text-sm font-medium">${label}<input name="${name}" type="${type || 'text'}" value="${esc2(val || '')}" class="inp w-full mt-1"></label>`;
+
+  g('acctBtn').onclick = e => { e.stopPropagation(); g('acctMenu').classList.toggle('hidden'); };
+  document.addEventListener('click', e => { if (!g('acctMenu').contains(e.target) && e.target !== g('acctBtn')) g('acctMenu').classList.add('hidden'); });
+
+  let draft = null;
+  function drawPrev() {
+    const el = g('avPrev'); if (!el) return;
+    drawAv(el, draft, cur().name);
+    if (!draft.photo && !draft.color && draft.anime === '') el.style.background = THEMES[themeOf(cur())][0];
+    g('acctDlgBody').querySelectorAll('[data-avcolor]').forEach(x => x.style.outline = x.dataset.avcolor === draft.color ? '3px solid #0f172a' : 'none');
+    g('acctDlgBody').querySelectorAll('[data-avchar]').forEach(x => x.style.outline = x.dataset.avchar === String(draft.anime) ? '3px solid #0f172a' : 'none');
+  }
+  g('acctChoose').onclick = () => {
+    const a = cur();
+    draft = { photo: a.photo || '', color: a.color || '', anime: (a.anime !== undefined && a.anime !== null) ? a.anime : '' };
+    const swatches = AV_COLORS.map(c => `<button type="button" data-avcolor="${c}" class="w-8 h-8 rounded-full" style="background:${c};outline-offset:2px"></button>`).join('');
+    const chars = '<button type="button" data-avchar="" class="w-14 h-14 rounded-full border border-slate-200 text-sm font-semibold flex items-center justify-center" style="outline-offset:2px">Aa</button>' + AV_CHARS.map((c, i) => `<button type="button" data-avchar="${i}" class="w-14 h-14 rounded-full overflow-hidden border border-slate-200" style="outline-offset:2px;background:url('${animeUri(i, '#e2e8f0')}') center/cover no-repeat" aria-label="Anime character ${i + 1}"></button>`).join('');
+    const others = accounts.length > 1 ? '<p class="text-xs font-semibold uppercase tracking-wide text-slate-400 pt-2">Switch profile</p>' + accounts.filter(x => x.user !== current).map(x => `<button type="button" data-pick="${esc2(x.user)}" class="acct-item border border-slate-200"><b>${esc2(x.name)}</b><span>@${esc2(x.user)}</span></button>`).join('') : '';
+    dlg('Choose profile',
+      '<div class="flex items-center gap-4"><div id="avPrev" class="w-20 h-20 rounded-full text-white text-3xl font-semibold flex items-center justify-center shrink-0"></div><div class="space-y-2"><label class="btn-sec cursor-pointer">Upload photo<input id="avFile" type="file" accept="image/*" class="hidden"></label><button type="button" data-avclear="1" class="block text-xs text-slate-500 hover:underline">Remove photo</button></div></div>' +
+      '<p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Anime character</p><div class="flex flex-wrap gap-2">' + chars + '</div>' +
+      '<p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Background color</p><div class="flex flex-wrap gap-2">' + swatches + '</div>' + others,
+      () => {
+        a.photo = draft.photo; a.color = draft.color; a.anime = draft.anime; delete a.emoji;
+        try { saveAcc(); } catch (err) { a.photo = ''; return 'Photo is too large to save.'; }
+        paint(); note('Profile picture updated');
+      });
+    drawPrev();
+  };
+  g('acctDlgBody').addEventListener('change', e => {
+    if (e.target.id !== 'avFile') return;
+    const f = e.target.files[0]; if (!f) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const s = 160, cv = document.createElement('canvas'); cv.width = cv.height = s;
+        const m = Math.min(img.width, img.height), cx = cv.getContext('2d');
+        cx.drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, s, s);
+        draft.photo = cv.toDataURL('image/jpeg', 0.85); drawPrev();
+      };
+      img.onerror = () => dlgErr('Could not read that image.');
+      img.src = rd.result;
+    };
+    rd.readAsDataURL(f);
+  });
+  g('acctDlgBody').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.pick) {
+      const a = accounts.find(x => x.user === b.dataset.pick);
+      if (a) { signIn(a); closeDlg(); note('Switched to ' + a.name); }
+    }
+    if (draft && b.dataset.avcolor !== undefined) { draft.color = b.dataset.avcolor; draft.photo = ''; drawPrev(); }
+    if (draft && b.dataset.avchar !== undefined) { draft.anime = b.dataset.avchar === '' ? '' : Number(b.dataset.avchar); draft.photo = ''; drawPrev(); }
+    if (draft && b.dataset.avclear) { draft.photo = ''; drawPrev(); }
+    if (b.dataset.theme) {
+      const a = cur(); a.theme = b.dataset.theme; saveAcc(); paint();
+      g('acctDlgBody').querySelectorAll('[data-theme]').forEach(x => x.style.outline = x.dataset.theme === a.theme ? '3px solid #0f172a' : 'none');
+    }
+  });
+  g('acctRemove').onclick = () => {
+    const a = cur();
+    if (accounts.length < 2) { g('acctMenu').classList.add('hidden'); return note('You cannot remove the only account', false); }
+    if (!confirm('Remove ' + a.name + ' from this device?')) return;
+    accounts = accounts.filter(x => x.user !== a.user); saveAcc();
+    current = null; localStorage.removeItem(KC);
+    showLogin(false); note('Account removed');
+  };
+  g('acctActivity').onclick = () => {
+    const log = cur().log || [];
+    dlg('Login Activity', '<p class="text-xs text-slate-500">Recent account access history</p>' + (log.length ? '<ul class="divide-y divide-slate-100 text-sm">' + log.map((l, i) => `<li class="py-2 flex justify-between"><span>${esc2(l)}</span><span class="text-slate-400">${i === 0 ? 'Current session' : 'Signed in'}</span></li>`).join('') + '</ul>' : '<p class="text-sm text-slate-500">No activity yet.</p>'), null);
+  };
+  g('acctEdit').onclick = () => {
+    const a = cur();
+    dlg('Edit Profile', field('Full name', 'name', 'text', a.name) + field('Username', 'user', 'text', a.user), f => {
+      const n = f.name.value.trim(), u = f.user.value.trim().toLowerCase();
+      if (!n || !u) return 'Name and username are required.';
+      if (accounts.some(x => x.user === u && x !== a)) return 'That username is already taken.';
+      a.name = n; a.user = u; current = u; localStorage.setItem(KC, u); saveAcc(); paint(); note('Profile updated');
+    });
+  };
+  g('acctTheme').onclick = () => {
+    const a = cur(), sel = themeOf(a);
+    draft = null;
+    dlg('Theme', '<p class="text-xs text-slate-500">Choose your background theme</p><div class="grid grid-cols-3 gap-3">' + Object.keys(THEMES).map(k => `<button type="button" data-theme="${k}" title="${THEMES[k][4]}" class="h-16 rounded-xl border border-slate-300 flex items-end justify-center pb-1 text-xs font-semibold text-slate-700" style="background:linear-gradient(135deg,${THEMES[k][3]} 55%,${THEMES[k][0]} 55%);outline:${sel === k ? '3px solid #0f172a' : 'none'};outline-offset:2px"><span class="bg-white/80 rounded px-1">${THEMES[k][4]}</span></button>`).join('') + '</div>', null);
+  };
+  g('acctPass').onclick = () => {
+    const a = cur();
+    dlg('Change Password', field('Current password', 'old', 'password') + field('New password', 'nw', 'password') + field('Confirm new password', 'cf', 'password'), f => {
+      if (f.old.value !== a.pass) return 'Current password is incorrect.';
+      if (f.nw.value.length < 6) return 'New password must be at least 6 characters.';
+      if (f.nw.value !== f.cf.value) return 'Passwords do not match.';
+      a.pass = f.nw.value; saveAcc(); note('Password changed');
+    });
+  };
+  g('acctAdd').onclick = () => showLogin(true);
+  g('acctLogout').onclick = () => {
+    current = null; localStorage.removeItem(KC);
+    showLogin(false); note('Signed out');
+  };
+
+  if (cur()) paint(); else showLogin(false);
+})();
+</script>
+<script>
+(function () {
+  const g = id => document.getElementById(id);
+  let active = false;
+  const lbl = 'block text-sm font-medium';
+  function closeModal() { active = false; g('modal').classList.add('hidden'); g('modal').classList.remove('flex'); }
+  function parseTime(sched) {
+    const m = sched.match(/(\d{1,2}):(\d{2})/);
+    return m ? String(m[1]).padStart(2, '0') + ':' + m[2] : '';
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest('#addSectionBtn');
+    if (b) {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      active = true;
+      g('modalTitle').textContent = 'New Section';
+      g('modalFields').innerHTML =
+        `<label class="${lbl}">Section Name<input id="nsName" class="inp w-full mt-1"></label>` +
+        `<label class="${lbl}">Subject<input id="nsSubject" class="inp w-full mt-1"></label>` +
+        `<label class="${lbl}">Schedule<textarea id="nsSched" rows="3" class="inp w-full mt-1"></textarea></label>` +
+        `<label class="${lbl}">Room<input id="nsRoom" class="inp w-full mt-1"></label>` +
+        `<label class="${lbl}">Teacher/Instructor<input id="nsTeacher" class="inp w-full mt-1"></label>`;
+      g('modalErr').classList.add('hidden');
+      g('modal').classList.remove('hidden'); g('modal').classList.add('flex');
+      return;
+    }
+    if (e.target.closest('#modalCancel')) active = false;
+  }, true);
+  document.addEventListener('submit', e => {
+    if (e.target.id !== 'modalForm' || !active || g('modalTitle').textContent !== 'New Section') return;
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    const name = g('nsName').value.trim(), subject = g('nsSubject').value.trim(), sched = g('nsSched').value.split('\n').map(s => s.trim()).filter(Boolean).join('; '),
+      room = g('nsRoom').value.trim(), adviser = g('nsTeacher').value.trim();
+    if (!name || !subject || !sched || !room || !adviser) {
+      g('modalErr').textContent = 'All fields are required.';
+      g('modalErr').classList.remove('hidden');
+      return;
+    }
+    app.addSection({ name, subject, days: sched, time: parseTime(sched), room, adviser });
+    closeModal();
+    toast('Section created');
+    render();
+  }, true);
+})();
+</script>
+<script>
+(function () {
+  const g = id => document.getElementById(id);
+  let active = false;
+  const lbl = 'block text-sm font-medium';
+  const e2 = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const ROWS = 10;
+  function closeModal() { active = false; g('modal').classList.add('hidden'); g('modal').classList.remove('flex'); g('modalForm').classList.replace('max-w-2xl', 'max-w-md'); }
+  function rowHtml(i) {
+    return `<tr><td class="xl-n">${i}</td><td><input class="xl-name" aria-label="Student Name"></td></tr>`;
+  }
+  function renumber() {
+    [...g('xlBody').rows].forEach((tr, i) => { tr.querySelector('.xl-n').textContent = i + 1; });
+  }
+  function addRows(n) {
+    const body = g('xlBody');
+    let c = body.rows.length;
+    let h = '';
+    for (let i = 0; i < n; i++) h += rowHtml(++c);
+    body.insertAdjacentHTML('beforeend', h);
+  }
+  function insertBelow(tr) {
+    tr.insertAdjacentHTML('afterend', rowHtml(0));
+    renumber();
+    return tr.nextElementSibling;
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest('#addStudentBtn');
+    if (b) {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      const secs = app.sections;
+      if (!secs.length) { toast('Create a section first', 'err'); return; }
+      const sel = g('stuSection').value;
+      active = true;
+      g('modalForm').classList.replace('max-w-md', 'max-w-2xl');
+      g('modalTitle').textContent = 'Add Students';
+      g('modalFields').innerHTML =
+        `<label class="${lbl}">Section<select id="nstSection" class="inp w-full mt-1">` +
+        secs.map(s => `<option value="${e2(s.id)}"${s.id === sel ? ' selected' : ''}>${e2(s.name)}${s.subject ? ' - ' + e2(s.subject) : ''}</option>`).join('') +
+        `</select></label>` +
+        `<label class="${lbl}">Paste names here (one name per line)<textarea id="nstPaste" rows="6" class="inp w-full mt-1" placeholder="Juan Dela Cruz&#10;Maria Santos&#10;Pedro Reyes"></textarea></label>` +
+        `<p class="text-xs text-slate-500">Or type names one by one in the table below.</p>` +
+        `<div style="max-height:50vh;overflow:auto"><table class="xl-grid"><thead><tr><th></th><th>Student Name</th></tr></thead><tbody id="xlBody"></tbody></table></div>`;
+      addRows(ROWS);
+      g('modalErr').classList.add('hidden');
+      g('modal').classList.remove('hidden'); g('modal').classList.add('flex');
+      g('nstPaste').focus();
+      return;
+    }
+    if (e.target.closest('#modalCancel')) closeModal();
+  }, true);
+  document.addEventListener('keydown', e => {
+    if (!active || !e.target.closest || !e.target.closest('#xlBody') || e.target.tagName !== 'INPUT') return;
+    const inp = e.target, tr = inp.closest('tr'), cells = [...tr.querySelectorAll('input')], idx = cells.indexOf(inp);
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      insertBelow(tr).querySelectorAll('input')[idx].focus();
+    } else if (e.key === 'Backspace' && cells.every(c => !c.value) && g('xlBody').rows.length > 1) {
+      e.preventDefault();
+      const target = tr.previousElementSibling || tr.nextElementSibling;
+      tr.remove();
+      renumber();
+      target.querySelectorAll('input')[idx].focus();
+    } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      const nx = e.key === 'ArrowDown' ? tr.nextElementSibling : tr.previousElementSibling;
+      if (nx) { e.preventDefault(); nx.querySelectorAll('input')[idx].focus(); }
+    } else if (e.key === 'Tab' && !e.shiftKey && idx === cells.length - 1 && !tr.nextElementSibling) {
+      addRows(1);
+    }
+  }, true);
+  document.addEventListener('paste', e => {
+    if (!active || !e.target.closest || !e.target.closest('#xlBody')) return;
+    const txt = (e.clipboardData || window.clipboardData).getData('text');
+    if (txt.indexOf('\n') < 0 && txt.indexOf('\t') < 0) return;
+    e.preventDefault();
+    const lines = txt.split(/\r?\n/).filter(l => l.length);
+    let tr = e.target.closest('tr');
+    const col = [...tr.querySelectorAll('input')].indexOf(e.target);
+    lines.forEach(l => {
+      if (!tr) { addRows(1); tr = g('xlBody').lastElementChild; }
+      const ins = tr.querySelectorAll('input');
+      l.split('\t').forEach((v, j) => { if (ins[col + j]) ins[col + j].value = v.trim(); });
+      tr = tr.nextElementSibling;
+    });
+  }, true);
+  document.addEventListener('submit', e => {
+    if (e.target.id !== 'modalForm' || !active || g('modalTitle').textContent !== 'Add Students') return;
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    const sectionId = g('nstSection').value;
+    const list = [];
+    g('nstPaste').value.split(/\r?\n/).forEach(l => {
+      const name = l.trim();
+      if (name) list.push({ name, sectionId, lrn: '' });
+    });
+    [...g('xlBody').rows].forEach(tr => {
+      const name = tr.querySelector('.xl-name').value.trim();
+      if (!name) return;
+      list.push({ name, sectionId, lrn: '' });
+    });
+    if (!sectionId || !list.length) {
+      g('modalErr').textContent = 'Enter at least one student.';
+      g('modalErr').classList.remove('hidden');
+      return;
+    }
+    list.forEach(o => app.addStudent(o));
+    closeModal();
+    toast(list.length + (list.length === 1 ? ' student added' : ' students added'));
+    render();
+  }, true);
+})();
+</script>
+<script>
+(function () {
+  const g = id => document.getElementById(id);
+  const body = g('attBody');
+  if (!body) return;
+  const obs = new MutationObserver(decorate);
+  function sectionStudents() {
+    const sid = g('attSection').value;
+    return app.students.filter(s => s.sectionId === sid);
+  }
+  function decorate() {
+    obs.disconnect();
+    try {
+      if (window.stripLrn) window.stripLrn();
+      const date = g('attDate').value;
+      const studs = sectionStudents();
+      const recs = app.records;
+      [...body.rows].forEach(tr => {
+        if (tr.cells.length < 3) return;
+        const text = tr.cells[0].textContent.trim();
+        const st = studs.find(s => text.indexOf(s.name) !== -1);
+        if (!st) return;
+        const r = recs.find(x => x.studentId === st.id && x.date === date);
+        if (r && r.time) tr.cells[1].textContent = fmtDate(r.date) + ' ' + fmtTime(r.time);
+      });
+    } catch (err) {}
+    obs.observe(body, { childList: true, subtree: true });
+  }
+  obs.observe(body, { childList: true, subtree: true });
+  decorate();
+  g('attDone').addEventListener('click', () => {
+    const date = g('attDate').value;
+    const studs = sectionStudents();
+    if (!studs.length) { toast('No students in this section', 'err'); return; }
+    const recs = app.records.filter(r => r.date === date && studs.some(s => s.id === r.studentId));
+    const marked = recs.length;
+    if (marked < studs.length) toast('Saved: ' + marked + ' of ' + studs.length + ' students marked');
+    else toast('Attendance saved for ' + fmtDate(date));
+  });
+})();
+</script>
+<script>
+(function () {
+  const ids = ['dashSection', 'attSection', 'stuSection'];
+  const sels = ids.map(id => document.getElementById(id)).filter(Boolean);
+  const obs = new MutationObserver(decorate);
+  function decorate() {
+    obs.disconnect();
+    try {
+      const secs = app.store.data.sections;
+      sels.forEach(sel => {
+        [...sel.options].forEach(o => {
+          const s = secs.find(x => x.id === o.value);
+          if (!s || !s.subject) return;
+          const t = s.name + ' - ' + s.subject;
+          if (o.textContent !== t) o.textContent = t;
+        });
+      });
+    } catch (err) {}
+    sels.forEach(sel => obs.observe(sel, { childList: true, subtree: true, characterData: true }));
+  }
+  decorate();
+  document.addEventListener('click', () => setTimeout(decorate, 0));
+  document.addEventListener('change', () => setTimeout(decorate, 0));
+})();
+</script>
+<script>
+(function () {
+  const g = id => document.getElementById(id);
+  document.addEventListener('click', e => {
+    const b = e.target.closest && e.target.closest('#attBody .mk.on');
+    if (!b) return;
+    const tr = b.closest('tr');
+    if (!tr) return;
+    const text = tr.cells[0].textContent.trim();
+    const sid = g('attSection').value;
+    const st = app.students.find(s => s.sectionId === sid && text.indexOf(s.name) !== -1);
+    if (!st) return;
+    const date = g('attDate').value;
+    const status = b.textContent.trim();
+    const recs = app.store.data.records;
+    const i = recs.findIndex(r => r.studentId === st.id && r.date === date && (!status || r.status === status));
+    if (i < 0) return;
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    recs.splice(i, 1);
+    app.store.save();
+    render();
+  }, true);
+})();
+</script>
+<script>
+(function () {
+  const g = id => document.getElementById(id);
+  const btn = g('markAllPresent');
+  if (!btn) return;
+  function allPresent() {
+    const sid = g('attSection').value, date = g('attDate').value;
+    const studs = app.students.filter(s => s.sectionId === sid);
+    if (!studs.length) return false;
+    const recs = app.store.data.records;
+    return studs.every(s => recs.some(r => r.studentId === s.id && r.date === date && r.status === 'Present'));
+  }
+  function upd() {
+    try { btn.textContent = allPresent() ? 'Unmark all' : 'Mark all Present'; } catch (err) {}
+  }
+  btn.addEventListener('click', e => {
+    if (!allPresent()) { setTimeout(upd, 0); return; }
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    const sid = g('attSection').value, date = g('attDate').value;
+    const ids = app.students.filter(s => s.sectionId === sid).map(s => s.id);
+    const data = app.store.data;
+    data.records = data.records.filter(r => !(r.date === date && ids.indexOf(r.studentId) !== -1));
+    app.store.save();
+    render();
+    upd();
+  }, true);
+  new MutationObserver(upd).observe(g('attBody'), { childList: true, subtree: true });
+  g('attSection').addEventListener('change', () => setTimeout(upd, 0));
+  g('attDate').addEventListener('change', () => setTimeout(upd, 0));
+  document.addEventListener('click', () => setTimeout(upd, 0));
+  upd();
+})();
+</script>
+</body>
+</html>
