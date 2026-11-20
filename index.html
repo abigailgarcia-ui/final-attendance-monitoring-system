@@ -221,24 +221,29 @@
   const g = id => document.getElementById(id);
   const KA = 'ams_accounts', KC = 'ams_current', KL = 'ams_reset_lock';
   const THEMES = {
-    default: ['#0d9488', '#0f766e', '#14b8a6', '#f1f5f9', 'Default', '#0f172a', '#1e293b'],
-    teal: ['#0d9488', '#0f766e', '#14b8a6', '#ccfbf1', 'Teal', '#134e4a', '#115e59'],
-    indigo: ['#4f46e5', '#4338ca', '#6366f1', '#e0e7ff', 'Indigo', '#312e81', '#3730a3'],
-    rose: ['#e11d48', '#be123c', '#f43f5e', '#ffe4e6', 'Rose', '#881337', '#9f1239'],
-    amber: ['#d97706', '#b45309', '#f59e0b', '#fef3c7', 'Amber', '#78350f', '#92400e'],
-    sky: ['#0284c7', '#0369a1', '#0ea5e9', '#e0f2fe', 'Sky', '#0c4a6e', '#075985'],
-    emerald: ['#059669', '#047857', '#10b981', '#d1fae5', 'Emerald', '#064e3b', '#065f46'],
-    violet: ['#7c3aed', '#6d28d9', '#8b5cf6', '#ede9fe', 'Violet', '#4c1d95', '#5b21b6'],
-    stone: ['#57534e', '#44403c', '#78716c', '#e7e5e4', 'Stone', '#292524', '#44403c'],
-    yellow: ['#ca8a04', '#a16207', '#eab308', '#fef9c3', 'Yellow', '#713f12', '#854d0e'],
-    red: ['#dc2626', '#b91c1c', '#ef4444', '#fee2e2', 'Red', '#7f1d1d', '#991b1b'],
-    orange: ['#ea580c', '#c2410c', '#f97316', '#ffedd5', 'Orange', '#7c2d12', '#9a3412'],
-    pink: ['#db2777', '#be185d', '#ec4899', '#fce7f3', 'Pink', '#831843', '#9d174d'],
-    fuchsia: ['#c026d3', '#a21caf', '#d946ef', '#fae8ff', 'Fuchsia', '#701a75', '#86198f'],
-    lime: ['#65a30d', '#4d7c0f', '#84cc16', '#ecfccb', 'Lime', '#365314', '#3f6212'],
-    cyan: ['#0891b2', '#0e7490', '#06b6d4', '#cffafe', 'Cyan', '#164e63', '#155e75'],
-    blue: ['#2563eb', '#1d4ed8', '#3b82f6', '#dbeafe', 'Blue', '#1e3a8a', '#1e40af'],
-    slate: ['#475569', '#334155', '#64748b', '#e2e8f0', 'Slate', '#0f172a', '#1e293b']
+    default: ['#1e3a5f', '#16304f', '#16304f', '#1e3a5f', 'Default Navy', '#1e3a5f', '#2a4a75'],
+    midnight: ['#334155', '#1e293b', '#000000', '#111111', 'Midnight Black', '#111111', '#262626'],
+    blue: ['#2563eb', '#1d4ed8', '#1e40af', '#3b6fd4', 'Blue', '#3b6fd4', '#4f82e0'],
+    red: ['#dc2626', '#b91c1c', '#991b1b', '#c0392b', 'Red', '#c0392b', '#d04a3c'],
+    orange: ['#ea580c', '#c2410c', '#9a3412', '#d9692a', 'Orange', '#d9692a', '#e47d43'],
+    gold: ['#ca8a04', '#a16207', '#854d0e', '#b8860b', 'Gold', '#b8860b', '#c99a22'],
+    green: ['#16a34a', '#15803d', '#166534', '#2e8b57', 'Green', '#2e8b57', '#43a06b'],
+    purple: ['#7c3aed', '#6d28d9', '#5b21b6', '#7e57c2', 'Purple', '#7e57c2', '#9170cc'],
+    rose: ['#e11d48', '#be123c', '#9f1239', '#c2557a', 'Rose Pink', '#c2557a', '#cf6d8f'],
+    gray: ['#4b5563', '#374151', '#1f2937', '#6b7280', 'Gray', '#6b7280', '#7d8591'],
+    charcoal: ['#57534e', '#44403c', '#292524', '#4a4540', 'Warm Charcoal', '#4a4540', '#5d5752'],
+    espresso: ['#5d4037', '#4a322b', '#3b2823', '#6b4a3a', 'Espresso', '#6b4a3a', '#7d5b4a'],
+    slate: ['#475569', '#334155', '#293548', '#5a6b80', 'Slate Gray', '#5a6b80', '#6c7d92'],
+    steel: ['#4682b4', '#386a94', '#2e5778', '#4a7fa8', 'Steel Blue', '#4a7fa8', '#5f93bb'],
+    teal: ['#0f766e', '#0c5f58', '#0a4d47', '#1f7a74', 'Deep Teal', '#1f7a74', '#34908a'],
+    cyan: ['#0891b2', '#0e7490', '#0b5f77', '#1a8ba3', 'Ocean Cyan', '#1a8ba3', '#32a0b8'],
+    forest: ['#2f6b3a', '#255530', '#1d4426', '#3a6e45', 'Forest Green', '#3a6e45', '#4d8259'],
+    sage: ['#6b8f71', '#557559', '#445f48', '#7a9a7f', 'Sage Green', '#7a9a7f', '#8cab91'],
+    olive: ['#6b7a2f', '#566325', '#444f1d', '#7a8038', 'Olive Green', '#7a8038', '#8d934c'],
+    indigo: ['#4f46e5', '#4338ca', '#3730a3', '#4c4fb3', 'Royal Indigo', '#4c4fb3', '#6164c2'],
+    plum: ['#7e3a7a', '#672e63', '#52254f', '#8a4a86', 'Deep Plum', '#8a4a86', '#9b5f97'],
+    burgundy: ['#7f1d3a', '#671730', '#521226', '#8c2d48', 'Burgundy', '#8c2d48', '#9d435d'],
+    terracotta: ['#c2603f', '#a34e32', '#873f28', '#c46a4a', 'Terracotta', '#c46a4a', '#d07e60']
   };
   const AV_COLORS = ['#0d9488', '#4f46e5', '#e11d48', '#d97706', '#0ea5e9', '#7c3aed', '#16a34a', '#475569'];
   const AV_CHARS = [
@@ -281,7 +286,8 @@
 
   function applyTheme() {
     const a = cur(), t = THEMES[themeOf(a)];
-    g('themeStyle').textContent = `body{background:${t[3]} !important}#sidebar{background:${t[5]} !important}#sidebar .nav-btn:hover{background:${t[6]}}.btn{background:${t[0]}}.btn:hover{background:${t[1]}}.nav-btn.active{background:${t[2]}}.mk.on{background:${t[0]};border-color:${t[0]}}#acctBtn,#acctAvatar{background:${t[0]}}`;
+    const dark = t[7] ? `body{color:#e2e8f0 !important}header,.card,#acctMenu{background:#1e293b !important;color:#e2e8f0 !important;border-color:#334155 !important}.inp{background:#0f172a !important;color:#e2e8f0 !important;border-color:#334155 !important}.acct-item:hover{background:#334155 !important}.acct-item span{color:#94a3b8 !important}.text-slate-500,.text-slate-400{color:#94a3b8 !important}` : '';
+    g('themeStyle').textContent = `body{background:${t[3]} !important}#sidebar{background:${t[3]} !important;color:#fff !important}#sidebar .text-slate-400{color:#e2e8f0 !important}#sidebar .nav-btn{color:#fff}#sidebar .nav-btn:hover{background:${t[6]}}:root{--primary:${t[0]};--primary-dark:${t[1]};--primary-rgb:${parseInt(t[0].slice(1,3),16)},${parseInt(t[0].slice(3,5),16)},${parseInt(t[0].slice(5,7),16)}}#sidebar .nav-btn.active,.nav-btn.active{background:${t[2]} !important;box-shadow:none}.mk.on{background:var(--primary);border-color:var(--primary)}#acctBtn,#acctAvatar{background:${t[0]}}` + dark;
   }
   function paint() {
     const a = cur(); if (!a) return;
@@ -479,7 +485,7 @@
   g('acctTheme').onclick = () => {
     const a = cur(), sel = themeOf(a);
     draft = null;
-    dlg('Theme', '<p class="text-xs text-slate-500">Choose your background theme</p><div class="grid grid-cols-3 gap-3">' + Object.keys(THEMES).map(k => `<button type="button" data-theme="${k}" title="${THEMES[k][4]}" class="h-16 rounded-xl border border-slate-300 flex items-end justify-center pb-1 text-xs font-semibold text-slate-700" style="background:linear-gradient(135deg,${THEMES[k][3]} 55%,${THEMES[k][0]} 55%);outline:${sel === k ? '3px solid #0f172a' : 'none'};outline-offset:2px"><span class="bg-white/80 rounded px-1">${THEMES[k][4]}</span></button>`).join('') + '</div>', null);
+    dlg('Theme', '<p class="text-xs text-slate-500">Choose your background theme</p><div class="grid grid-cols-3 gap-3">' + Object.keys(THEMES).map(k => `<button type="button" data-theme="${k}" title="${THEMES[k][4]}" class="h-16 rounded-xl border border-slate-300 flex items-end justify-center pb-1 text-xs font-semibold text-slate-700" style="background:${THEMES[k][3]};outline:${sel === k ? '3px solid #0f172a' : 'none'};outline-offset:2px"><span class="bg-white/80 rounded px-1">${THEMES[k][4]}</span></button>`).join('') + '</div>', null);
   };
   g('acctPass').onclick = () => {
     const a = cur();
